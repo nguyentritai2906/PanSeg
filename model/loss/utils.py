@@ -6,6 +6,8 @@ import time
 import torch
 import torch.nn as nn
 
+THINGS_CLASS_ID = [24, 25, 26, 27, 28, 31, 32, 33]
+
 
 def get_mean_and_std(dataset, max_load=10000):
     '''Compute the mean and std value of dataset.'''
@@ -236,7 +238,7 @@ def one_hot_embedding(labels, num_classes):
       (tensor) encoded labels, sized [N,#classes].
     '''
     y = torch.eye(num_classes)  # [D,D]
-    return y[labels]  # [N,D]
+    return y[labels.long()]  # [N,D]
 
 
 def msr_init(net):

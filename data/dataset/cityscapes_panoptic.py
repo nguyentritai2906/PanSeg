@@ -8,6 +8,7 @@ import os
 
 import numpy as np
 import torch
+
 from data.encoder import DataEncoder
 
 from ..transforms import (PanopticTargetGenerator, Resize,
@@ -181,33 +182,29 @@ class CityscapesPanoptic(Cityscapes):
         As for images are of different sizes, we need to pad them to the same size.
 
         Args:
-          batch: (list) of images, cls_targets, loc_targets.
+          batch: (list) of dict.
 
         Returns:
-          padded images, stacked cls_targets, stacked loc_targets.
+          dict
         '''
         imgs = [x['image'] for x in batch]
         boxes = [x['bbox'] for x in batch]
         labels = [x['target_class'] for x in batch]
 
-        h = 512
-        w = 1024
+        h, w = imgs[0].shape[-2:]
         num_imgs = len(imgs)
-        inputs = torch.zeros(num_imgs, 3, h, w)
 
         loc_targets = []
         cls_targets = []
         for i in range(num_imgs):
-            #  print('Cityscpaes Panoptic', imgs[i].shape, boxes[i].shape,
-            #  labels[i].shape)
-            inputs[i] = imgs[i]
             loc_target, cls_target = self.encoder.encode(boxes[i],
                                                          labels[i],
                                                          input_size=(w, h))
             loc_targets.append(loc_target)
             cls_targets.append(cls_target)
-        for x in batch:
-            x['inputs'] = inputs
-            x['box'] = torch.stack(loc_targets)
-            x['target_class'] = torch.stack(cls_targets)
-        return batch
+        out_dict = dict(
+            image=torch.stack(imgs),
+            boxes=torch.stack(loc_targets),
+            classes=torch.stack(cls_targets),
+        )
+        return out_dict

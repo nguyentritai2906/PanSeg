@@ -1,10 +1,11 @@
 import torch
+from torch import nn
+
 from model.backbone.unet import UNet
 from model.backbone.vargnet import VarGNet_FPS
 from model.fpsnet import (FPN, AttentionHead, BBoxHead, MergeFeatureMaps,
                           PanopticHead)
 from model.loss.focal import FocalLoss
-from torch import nn
 
 
 class FPSNet(nn.Module):
@@ -45,8 +46,8 @@ class FPSNet(nn.Module):
 
     def loss(self, results, targets=None):
         # self, loc_preds, loc_targets, cls_preds, cls_targets
-        focal = self.focal_loss(results['bboxes'], targets['bbox'],
-                                results['labels'], targets['target_class'])
+        focal = self.focal_loss(results['bboxes'], targets['boxes'],
+                                results['labels'], targets['classes'])
         sce = self.softmax_crossentropy_loss(results['outputs'],
                                              targets['panoptic'])
         return 0.5 * focal + sce

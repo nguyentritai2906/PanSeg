@@ -166,7 +166,6 @@ class PanopticTargetGenerator(object):
                     seg['id'] /
                     1000)]) if seg['id'] > 1000 else torch.Tensor([seg['id']])
                 target_class.append(tg_cls)
-        print(len(bbox))
 
         return dict(
             semantic=torch.as_tensor(semantic.astype('long')),
@@ -178,8 +177,10 @@ class PanopticTargetGenerator(object):
                 semantic_weights.astype(np.float32)),
             center_weights=torch.as_tensor(center_weights.astype(np.float32)),
             offset_weights=torch.as_tensor(offset_weights.astype(np.float32)),
-            bbox=torch.squeeze(torch.stack(bbox)),
-            target_class=torch.squeeze(torch.stack(target_class), dim=-1),
+            bbox=torch.squeeze(torch.stack(bbox), dim=1)
+            if len(bbox) > 0 else torch.empty((1, 4)),
+            target_class=torch.squeeze(torch.stack(target_class), dim=-1)
+            if len(target_class) > 0 else torch.empty((1, )),
             panoptic=panoptic)
 
 

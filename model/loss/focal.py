@@ -1,7 +1,8 @@
 import torch.nn as nn
 import torch.nn.functional as F
-from model.loss.utils import one_hot_embedding
 from torch.autograd import Variable
+
+from model.loss.utils import one_hot_embedding
 
 
 class FocalLoss(nn.Module):
@@ -45,6 +46,7 @@ class FocalLoss(nn.Module):
         '''
         alpha = 0.25
 
+        print('focal y: ', y)
         t = one_hot_embedding(y.data.cpu(), 1 + self.num_classes)
         t = t[:, 1:]
         t = Variable(t).cuda()

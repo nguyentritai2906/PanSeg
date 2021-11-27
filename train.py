@@ -1,10 +1,11 @@
 import torch
+from torch.cuda.amp.autocast_mode import autocast
+from torch.cuda.amp.grad_scaler import GradScaler
+
 from config import config
 from data.build import build_train_loader_from_cfg
 from model.models import FPSNet
 from solver.build import build_lr_scheduler, build_optimizer
-from torch.cuda.amp.autocast_mode import autocast
-from torch.cuda.amp.grad_scaler import GradScaler
 from utils.utils import to_cuda
 
 
@@ -25,7 +26,6 @@ def main():
             # 'center_points', 'offset', 'semantic_weights', 'center_weights',
             # 'offset_weights']
             data = to_cuda(data, device)
-            print(type(data[0]))
 
             image = data['image']
             with autocast(enabled=config.TRAIN.AMP):
@@ -36,6 +36,7 @@ def main():
             scaler.update()
             optimizer.zero_grad()
             lr_scheduler.step()
+        print('Hell Yeah!')
     except Exception:
         raise
 
